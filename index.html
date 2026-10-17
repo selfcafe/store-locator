@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>近くのセルフカフェを探す</title><style>body{margin:0;padding:8px 12px;background:#fff}</style></head><body><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>近くのセルフカフェを探す</title><style>body{margin:0;padding:8px 12px;background:#fff}</style></head><body><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <style>
 .scf-loc{--g:#22703d;--g2:#30693e;--lg:#ecf4ee;--line:#d9e3dc;--ink:#101010;--sub:#5b625d;
 font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Sans",YuGothic,"Yu Gothic",Meiryo,sans-serif;
@@ -20,7 +20,7 @@ font-size:15px;padding:12px 22px;cursor:pointer;display:inline-flex;align-items:
 .scf-loc .scf-cands{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
 .scf-loc .scf-cands button{border:1px solid var(--g);background:#fff;color:var(--g);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
 .scf-loc .scf-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px}
-.scf-loc .scf-map{height:540px;border-radius:12px;border:1px solid var(--line);z-index:0}
+.scf-loc .scf-map{height:540px;border-radius:12px;border:1px solid var(--line);z-index:0;overflow:hidden}
 .scf-loc .scf-list{list-style:none;margin:0;padding:0;max-height:540px;overflow:auto;display:flex;flex-direction:column;gap:10px}
 .scf-loc .scf-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer;transition:border-color .15s}
 .scf-loc .scf-item:hover,.scf-loc .scf-item.on{border-color:var(--g);box-shadow:0 0 0 1px var(--g) inset}
@@ -41,8 +41,10 @@ box-shadow:0 1px 4px rgba(0,0,0,.35);display:grid;place-items:center}
 .scf-loc .scf-pin span{transform:rotate(45deg);font-size:11px;font-weight:700}
 .scf-loc .scf-pin.dim{background:#8fae98;width:18px;height:18px}
 .scf-loc .scf-me{width:18px;height:18px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 6px rgba(26,115,232,.25)}
-.scf-loc .leaflet-popup-content{font-size:13px;line-height:1.5}
-.scf-loc .leaflet-popup-content a{color:var(--g);font-weight:700}
+.scf-loc .scf-mk{cursor:pointer}
+.scf-loc .maplibregl-popup-content{font-size:13px;line-height:1.5;padding:10px 26px 10px 12px;border-radius:10px}
+.scf-loc .maplibregl-popup-content a{color:var(--g);font-weight:700}
+.scf-loc .maplibregl-popup-close-button{font-size:18px;width:24px;height:24px}
 .scf-loc.in-frame{height:calc(100vh - 16px);display:flex;flex-direction:column}
 .scf-loc.in-frame .scf-body{flex:1;min-height:0}
 .scf-loc.in-frame .scf-map{height:100%}
@@ -81,7 +83,7 @@ box-shadow:0 1px 4px rgba(0,0,0,.35);display:grid;place-items:center}
 </div>
 <p class="scf-note">※距離は直線距離の目安です。道順は Google マップで確認できます。</p>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 (function () {
 var COORDS = {"2691":[35.075695,136.73085],"3224":[35.844086,139.955124],"531":[35.803074,140.164886],"2306":[36.258087,139.15477],"904":[34.622288,135.509109],"2442":[34.693275,135.618057],"1880":[34.749062,135.533859],"1203":[34.702007,135.535294],"922":[34.698376,135.513626],"1485":[34.521835,135.593506],"1962":[34.61924,135.546906],"495":[34.702076,135.511459],"2852":[34.689968,135.520569],"1201":[34.732952,135.557343],"1103":[34.738842,135.564102],"1211":[34.675686,135.500076],"763":[34.648731,135.583664],"1568":[34.705372,135.501572],"760":[34.758106,135.534393],"2445":[34.699749,135.546432],"950":[34.668152,135.515823],"3384":[34.703575,135.573547],"3247":[34.699581,135.499298],"3239":[35.365883,136.629562],"2249":[35.429836,136.697495],"1480":[39.703125,141.146729],"1106":[39.703175,141.136002],"1225":[35.087593,137.155624],"96":[35.16172,136.882553],"1109":[34.811646,137.195023],"745":[35.165794,136.904938],"1123":[35.002117,136.998566],"384":[35.170979,136.866837],"989":[35.170956,136.859543],"3289":[35.171684,136.900604],"985":[35.177708,136.872711],"543":[35.121223,136.888214],"93":[35.169899,136.929626],"2080":[35.126011,136.995361],"993":[35.167114,136.872177],"3353":[34.959995,137.086914],"879":[35.31786,136.872589],"457":[34.889641,136.835358],"1099":[34.887058,137.162903],"346":[35.147488,136.933273],"459":[35.204765,136.948975],"773":[35.117249,136.936432],"1207":[35.135857,136.893005],"1209":[35.161858,136.983032],"3282":[35.175903,136.866028],"535":[35.170097,136.90657],"875":[35.184032,136.873901],"379":[35.140938,136.930359],"1277":[35.167633,136.945343],"449":[35.239231,137.156616],"59":[35.098301,136.98941],"386":[35.080513,136.978073],"2084":[35.182354,137.019913],"407":[35.183552,136.924377],"538":[35.10173,136.955811],"3225":[35.143929,136.852829],"2359":[35.093269,136.949295],"355":[35.156414,136.911194],"667":[35.170887,136.879517],"675":[35.173565,137.037491],"2818":[35.669674,139.600525],"1517":[35.731083,139.729507],"1683":[35.732693,139.739151],"2255":[35.692627,139.698029],"2816":[35.70612,139.720352],"1693":[35.772583,139.79747],"2087":[35.662666,139.699677],"2104":[35.271404,136.26799],"455":[34.679379,137.711365],"2157":[35.494823,134.227798]};  // 店舗案内の投稿ID → [緯度, 経度]
@@ -94,12 +96,27 @@ if (window.self !== window.top) root.classList.add("in-frame");
 if (/[?&]notitle(&|=|$)/.test(location.search)) root.querySelector("h2").style.display = "none";
 var $ = function (k) { return root.querySelector('[data-scf="' + k + '"]'); };
 var msgEl = $("msg"), listEl = $("list"), candEl = $("cands"), input = $("q"), hereBtn = $("here");
-var PAGE = 5, shown = PAGE, origin = null, ranked = [], markers = [], meMarker = null;
-var map = L.map($("map"), { scrollWheelZoom: false }).setView([35.4, 136.9], 6);
-L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", {
-maxZoom: 18,
-attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">国土地理院</a>'
-}).addTo(map);
+var PAGE = 5, shown = PAGE, origin = null, ranked = [], markers = [], meMarker = null, openPop = null;
+// 地図は OpenFreeMap（無料・キー不要）。ホイールでは拡大しない（ページのスクロールを邪魔しないため）・回転しない
+var map = new maplibregl.Map({ container: $("map"), style: "https://tiles.openfreemap.org/styles/liberty",
+center: [136.9, 35.4], zoom: 4.6, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false });
+map.scrollZoom.disable();
+map.touchZoomRotate.disableRotation();
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-left");
+// 地名はローマ字が混ざるので、日本語名（name:ja）→ 元の名前の順に出す（道路番号などの表示はそのまま）
+function jaLabels() {
+(map.getStyle().layers || []).forEach(function (l) {
+var tf = l.layout && l.layout["text-field"];
+if (l.type === "symbol" && tf && JSON.stringify(tf).indexOf("name") >= 0)
+map.setLayoutProperty(l.id, "text-field", ["coalesce", ["get", "name:ja"], ["get", "name"]]);
+});
+}
+map.on("style.load", jaLabels);
+function fit(pts, maxZoom, pad) {
+var b = new maplibregl.LngLatBounds();
+pts.forEach(function (p) { b.extend([p[1], p[0]]); });
+map.fitBounds(b, { padding: pad, maxZoom: maxZoom, duration: 600 });
+}
 function esc(s) { return String(s || "").replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function shortName(n) { return n.replace(/^セルフカフェ\s*/, ""); }
 function km(a, b) {
@@ -114,9 +131,22 @@ if (origin) u += "&origin=" + origin.lat + "," + origin.lng;
 return u;
 }
 function say(t, err) { msgEl.textContent = t; msgEl.className = "scf-msg" + (err ? " err" : ""); }
-function pin(label, dim) {
-return L.divIcon({ className: "", html: '<div class="scf-loc"><div class="scf-pin' + (dim ? " dim" : "") + '"><span>' + (label || "") + "</span></div></div>",
-iconSize: dim ? [18, 18] : [26, 26], iconAnchor: dim ? [9, 18] : [13, 26], popupAnchor: [0, -24] });
+// ピン: 番号なし（全店）は小さい薄緑、検索結果は番号入りの緑
+function setPin(i, label) {
+var w = markers[i].getElement(), p = w.firstChild;
+p.className = "scf-pin" + (label ? "" : " dim");
+p.firstChild.textContent = label || "";
+w.style.zIndex = label ? 2 : 1;
+}
+function addMarker(s, i) {
+var w = document.createElement("div");
+w.className = "scf-mk";
+w.title = s.name;
+w.innerHTML = '<div class="scf-pin dim"><span></span></div>';
+var pop = new maplibregl.Popup({ offset: 24, maxWidth: "260px" });
+// 道順のリンクは検索した場所によって変わるので、開くたびに作り直す
+pop.on("open", function () { if (openPop && openPop !== pop) openPop.remove(); openPop = pop; pop.setHTML(popup(s)); });
+markers[i] = new maplibregl.Marker({ element: w, anchor: "bottom" }).setLngLat([s.lng, s.lat]).setPopup(pop).addTo(map);
 }
 function popup(s) {
 return "<b>" + esc(s.name) + "</b><br>" + esc(s.address) + (s.time ? "<br>営業時間：" + esc(s.time) : "") +
@@ -161,16 +191,14 @@ return st;
 }).then(function (list) {
 STORES = list.filter(Boolean);
 // 初期表示: 全店を小さいピンで
-STORES.forEach(function (s, i) {
-markers[i] = L.marker([s.lat, s.lng], { icon: pin("", true), title: s.name }).addTo(map).bindPopup(popup(s));
-});
-if (STORES.length) map.fitBounds(L.latLngBounds(STORES.map(function (s) { return [s.lat, s.lng]; })), { padding: [20, 20] });
+STORES.forEach(addMarker);
+if (STORES.length && !origin) fit(STORES.map(function (s) { return [s.lat, s.lng]; }), 15, 20);
 say("");
 }).catch(function () { say("店舗情報を読み込めませんでした。時間をおいて再度お試しください。", true); throw new Error("load"); });
 say("店舗情報を読み込んでいます…");
 function render() {
 listEl.innerHTML = "";
-STORES.forEach(function (s, i) { markers[i].setIcon(pin("", true)).setZIndexOffset(0); });
+STORES.forEach(function (s, i) { setPin(i, ""); });
 ranked.slice(0, shown).forEach(function (r, n) {
 var s = r.s, li = document.createElement("li");
 li.className = "scf-item";
@@ -184,11 +212,11 @@ li.addEventListener("click", function (e) {
 if (e.target.closest("a")) return;
 root.querySelectorAll(".scf-item.on").forEach(function (x) { x.classList.remove("on"); });
 li.classList.add("on");
-map.setView([s.lat, s.lng], Math.max(map.getZoom(), 15));
-markers[r.i].openPopup();
+map.easeTo({ center: [s.lng, s.lat], zoom: Math.max(map.getZoom(), 14.5) });
+if (!markers[r.i].getPopup().isOpen()) markers[r.i].togglePopup();
 });
 listEl.appendChild(li);
-markers[r.i].setIcon(pin(n + 1)).setZIndexOffset(1000);
+setPin(r.i, n + 1);
 });
 if (shown < ranked.length) {
 var more = document.createElement("button");
@@ -201,11 +229,14 @@ function searchFrom(pt, label) {
 origin = { lat: +pt.lat.toFixed(5), lng: +pt.lng.toFixed(5) };
 ranked = STORES.map(function (s, i) { return { s: s, i: i, d: km(origin, s) }; }).sort(function (a, b) { return a.d - b.d; });
 shown = PAGE;
-if (meMarker) map.removeLayer(meMarker);
-meMarker = L.marker([origin.lat, origin.lng], { icon: L.divIcon({ className: "", html: '<div class="scf-loc"><div class="scf-me"></div></div>', iconSize: [18, 18], iconAnchor: [9, 9] }), zIndexOffset: 2000, title: label }).addTo(map);
+if (openPop) openPop.remove();
+if (meMarker) meMarker.remove();
+var me = document.createElement("div");
+me.className = "scf-me"; me.title = label; me.style.zIndex = 3;
+meMarker = new maplibregl.Marker({ element: me, anchor: "center" }).setLngLat([origin.lng, origin.lat]).addTo(map);
 var near = ranked.slice(0, 3).map(function (r) { return [r.s.lat, r.s.lng]; });
 near.push([origin.lat, origin.lng]);
-map.fitBounds(L.latLngBounds(near), { padding: [40, 40], maxZoom: 15 });
+fit(near, 15, 50);
 say(label + "から近い順に表示しています。" + (ranked[0] && ranked[0].d > 30 ? "（近くの店舗は " + distText(ranked[0].d) + " 先です）" : ""));
 render();
 }
