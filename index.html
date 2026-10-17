@@ -233,7 +233,7 @@ li.innerHTML =
 '<p class="scf-meta">' + esc(s.address) + "</p>" +
 (s.access ? '<p class="scf-meta">' + esc(s.access) + "</p>" : "") +
 (s.time ? '<p class="scf-meta"><b>営業時間</b> ' + esc(s.time) + (s.holiday ? "　<b>定休日</b> " + esc(s.holiday) : "") + "</p>" : "") +
-'<div class="scf-acts"><a class="go" href="' + esc(routeUrl(s)) + '" target="_blank" rel="noopener">道順（Googleマップ）</a><a class="pg" href="' + esc(s.url) + '" target="_top">店舗ページ</a></div>';
+'<div class="scf-acts"><a class="go" href="' + esc(routeUrl(s)) + '" target="_blank" rel="noopener">道順を見る</a><a class="pg" href="' + esc(s.url) + '" target="_top">店舗ページ</a></div>';
 li.addEventListener("click", function (e) {
 if (e.target.closest("a")) return;
 root.querySelectorAll(".scf-item.on").forEach(function (x) { x.classList.remove("on"); });
