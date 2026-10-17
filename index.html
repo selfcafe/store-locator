@@ -303,5 +303,8 @@ candEl.appendChild(b);
 });
 });
 });
+// ?q=駅名 で開くと、その場所で検索した状態で始める（例: 他のページから「梅田で探す」とリンクするとき）
+var q0 = new URLSearchParams(location.search).get("q");
+if (q0) { input.value = q0; $("form").dispatchEvent(new Event("submit", { cancelable: true })); }
 })();
 </script></body></html>
