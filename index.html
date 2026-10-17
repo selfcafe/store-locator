@@ -21,7 +21,8 @@ font-size:15px;padding:12px 22px;cursor:pointer;display:inline-flex;align-items:
 .scf-loc .scf-cond summary::-webkit-details-marker{display:none}
 .scf-loc .scf-cond summary::after{content:"＋";margin-left:auto;font-weight:700}
 .scf-loc .scf-cond[open] summary::after{content:"－"}
-.scf-loc .scf-condsum{font-weight:400;font-size:13px;color:var(--sub)}
+.scf-loc .scf-condttl{white-space:nowrap}
+.scf-loc .scf-condsum{font-weight:400;font-size:13px;color:var(--sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .scf-loc .scf-condbody{padding:0 16px 16px;display:grid;gap:12px}
 .scf-loc .scf-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:start}
 .scf-loc .scf-row > span{font-size:13px;font-weight:700;padding-top:8px}
@@ -101,7 +102,7 @@ box-shadow:0 1px 4px rgba(0,0,0,.35);display:grid;place-items:center}
 </form>
 </div>
 <details class="scf-cond" data-scf="cond">
-<summary>条件から探す <span class="scf-condsum" data-scf="condsum">エリア・設備</span></summary>
+<summary><span class="scf-condttl">条件から探す</span> <span class="scf-condsum" data-scf="condsum">エリア・設備</span></summary>
 <div class="scf-condbody">
 <div class="scf-row"><span>エリア</span>
 <div class="scf-selects">
