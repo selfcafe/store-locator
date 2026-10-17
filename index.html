@@ -76,10 +76,10 @@ font-size:15px;padding:12px 24px;cursor:pointer;display:inline-flex;align-items:
 .scf-loc .scf-more{border:1px solid var(--g);background:rgba(255,255,255,.7);color:var(--g);border-radius:9999px;padding:10px;font:inherit;font-weight:700;cursor:pointer;transition:all .3s}
 .scf-loc .scf-more:hover{background:rgba(146,175,12,.5)}
 .scf-loc .scf-note{font-size:12px;color:var(--sub);margin-top:10px}
-/* 店舗のピン: 白いしずく型に緑の縁、中央に余白をとってセルフカフェのマーク（mark.png）。検索結果は大きくして右上に順位（2026-10-17 ユーザーの手描き案） */
+/* 店舗のピン: 白いしずく型に緑の縁、中央に余白をとってセルフカフェのマーク（mark.png＝文字まで入ったマーク全体）。検索結果は大きくして右上に順位（2026-10-17 ユーザーの手描き案） */
 .scf-loc .scf-mk{cursor:pointer;line-height:0}
-.scf-loc .scf-pinsvg{display:block;width:34px;height:44px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));overflow:visible}
-.scf-loc .scf-mk.on .scf-pinsvg{width:46px;height:60px}
+.scf-loc .scf-pinsvg{display:block;width:40px;height:52px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));overflow:visible}
+.scf-loc .scf-mk.on .scf-pinsvg{width:54px;height:70px}
 .scf-loc .scf-no{position:absolute;top:-8px;right:-11px;min-width:21px;height:21px;border-radius:11px;background:var(--lime);color:#fff;border:2px solid #fff;
 font-family:"Jost",sans-serif;font-size:12px;font-weight:600;display:none;place-items:center;padding:0 4px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .scf-loc .scf-mk.on .scf-no{display:grid}
@@ -405,7 +405,7 @@ w.title = s.name;
 // しずく型（先端が地点）。白地＋緑の縁、ロゴは丸の中央に余白をとって置く
 w.innerHTML = '<svg class="scf-pinsvg" viewBox="0 0 40 52" aria-hidden="true">' +
 '<path d="M20 50.5C20 50.5 3.5 33 3.5 19.5a16.5 16.5 0 1 1 33 0C36.5 33 20 50.5 20 50.5Z" fill="#fff" stroke="#22703d" stroke-width="2.5" stroke-linejoin="round"/>' +
-'<image href="' + MARK + '" x="9" y="8.5" width="22" height="22"/></svg><span class="scf-no"></span>';
+'<image href="' + MARK + '" x="8.25" y="7.75" width="23.5" height="23.5"/></svg><span class="scf-no"></span>';
 markers[i] = MAP.marker(s, w, function () { return popup(s); });
 }
 function popup(s) {
