@@ -1,61 +1,80 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>近くのセルフカフェを探す</title><style>body{margin:0;padding:8px 12px;background:#fff}</style></head><body><style>
-.scf-loc{--g:#22703d;--g2:#30693e;--lg:#ecf4ee;--line:#d9e3dc;--ink:#101010;--sub:#5b625d;
-font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Sans",YuGothic,"Yu Gothic",Meiryo,sans-serif;
-color:var(--ink);max-width:1080px;margin:0 auto;line-height:1.6;box-sizing:border-box}
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>近くのセルフカフェを探す</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"><style>html,body{background:transparent}body{margin:0;padding:8px 12px}</style></head><body><style>
+/* 見た目は HP（selfcafe.jp）のテーマ wdp_selfcafe に合わせる（2026-10-17）
+色: 緑 #22703d / 濃い緑 #30693e / 黄緑 #92af0c / ボタンの下線 #b7b071 / 本文 #101010・#393939
+文字: Jost（英字）＋ Noto Sans JP。ボタン＝c-btn01（緑・角丸7px・下に線）、丸ボタン＝shop-categoryList、見出しの点線＝c-title02 */
+.scf-loc{--g:#22703d;--g2:#30693e;--lime:#92af0c;--gold:#b7b071;--ink:#101010;--sub:#393939;--line:rgba(34,112,61,.28);--card:rgba(255,255,255,.92);
+font-family:"Noto Sans JP","Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Hiragino Sans",YuGothic,"Yu Gothic",Meiryo,sans-serif;
+color:var(--ink);max-width:1200px;margin:0 auto;line-height:1.6;box-sizing:border-box;letter-spacing:.02em}
 .scf-loc *,.scf-loc *::before,.scf-loc *::after{box-sizing:border-box}
-.scf-loc h2{font-size:22px;margin:0 0 4px;color:var(--g);letter-spacing:.04em}
-.scf-loc .scf-lead{margin:0 0 16px;color:var(--sub);font-size:14px}
-.scf-loc .scf-search{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin-bottom:10px}
-.scf-loc .scf-btn{appearance:none;border:0;border-radius:999px;background:var(--g);color:#fff;font:inherit;font-weight:700;
-font-size:15px;padding:12px 22px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
-.scf-loc .scf-btn:hover{background:var(--g2)}
+/* 見出し: HP のセクション見出し（英字 Jost ＋ 日本語）に合わせる */
+.scf-loc .scf-head{text-align:center;margin:0 0 18px}
+.scf-loc .scf-head_en{margin:0;font-family:"Jost",sans-serif;font-weight:600;color:var(--g2);font-size:clamp(2rem,1.7rem + 1.2vw,2.75rem);line-height:1.1;letter-spacing:.04em}
+.scf-loc .scf-head h2{margin:6px 0 0;font-size:clamp(1.0625rem,1rem + .3vw,1.25rem);font-weight:700;color:var(--ink)}
+.scf-loc .scf-lead{margin:8px 0 0;color:var(--sub);font-size:14px}
+/* 検索の行 */
+.scf-loc .scf-search{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;margin-bottom:12px}
+.scf-loc .scf-btn{appearance:none;border:0;border-bottom:4px solid var(--gold);border-radius:7px;background:var(--g);color:#fff;font:inherit;font-weight:700;
+font-size:15px;padding:12px 24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;transition:all .2s}
+.scf-loc .scf-btn:hover{border-bottom-width:1px;transform:translateY(3px);min-height:49px}
 .scf-loc .scf-btn:disabled{opacity:.6;cursor:wait}
-.scf-loc .scf-form{flex:1 1 300px;display:flex;border:2px solid var(--g);border-radius:999px;overflow:hidden;background:#fff;min-height:48px}
-.scf-loc .scf-form input{flex:1;border:0;outline:0;padding:10px 18px;font:inherit;font-size:16px;min-width:0;background:transparent;color:var(--ink)}
-.scf-loc .scf-form button{border:0;background:var(--g);color:#fff;font:inherit;font-weight:700;padding:0 20px;cursor:pointer}
+.scf-loc .scf-form{flex:1 1 320px;display:flex;gap:8px;align-items:stretch}
+.scf-loc .scf-form input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1px solid #ccc;border-radius:3px;padding:12px 16px;outline:0}
+.scf-loc .scf-form input:focus{border-color:#fff;box-shadow:0 0 0 2px var(--g)}
+.scf-loc .scf-form input::placeholder{color:#999}
+.scf-loc .scf-form button{appearance:none;border:0;border-bottom:4px solid var(--gold);border-radius:7px;background:var(--g);color:#fff;font:inherit;font-weight:700;padding:0 22px;cursor:pointer;transition:all .2s}
+.scf-loc .scf-form button:hover{border-bottom-width:1px;transform:translateY(3px)}
 .scf-loc .scf-or{align-self:center;color:var(--sub);font-size:13px}
 /* 条件から探す（開閉） */
-.scf-loc .scf-cond{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:10px}
-.scf-loc .scf-cond summary{list-style:none;cursor:pointer;padding:12px 16px;font-weight:700;color:var(--g);display:flex;align-items:center;gap:10px}
+.scf-loc .scf-cond{border:1px solid var(--g);border-radius:10px;background:rgba(255,255,255,.7);margin-bottom:12px}
+.scf-loc .scf-cond summary{list-style:none;cursor:pointer;padding:12px 18px;font-weight:700;color:var(--g);display:flex;align-items:center;gap:10px}
 .scf-loc .scf-cond summary::-webkit-details-marker{display:none}
 .scf-loc .scf-cond summary::after{content:"＋";margin-left:auto;font-weight:700}
 .scf-loc .scf-cond[open] summary::after{content:"－"}
 .scf-loc .scf-condttl{white-space:nowrap}
 .scf-loc .scf-condsum{font-weight:400;font-size:13px;color:var(--sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.scf-loc .scf-condbody{padding:0 16px 16px;display:grid;gap:12px}
-.scf-loc .scf-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:start}
-.scf-loc .scf-row > span{font-size:13px;font-weight:700;padding-top:8px}
+.scf-loc .scf-condbody{padding:14px 18px 18px;display:grid;gap:14px;border-top:2px dashed var(--g);margin:0 18px;padding-left:0;padding-right:0}
+.scf-loc .scf-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;align-items:start}
+.scf-loc .scf-row > span{font-size:14px;font-weight:700;padding-top:9px;color:var(--g2)}
 .scf-loc .scf-selects{display:flex;gap:8px;flex-wrap:wrap}
-.scf-loc select{font:inherit;font-size:15px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);min-width:150px;flex:1 1 150px}
+.scf-loc select{font:inherit;font-size:15px;padding:10px 14px;border:1px solid #ccc;border-radius:3px;background:#fff;color:var(--ink);min-width:150px;flex:1 1 150px}
+.scf-loc select:focus{outline:0;border-color:#fff;box-shadow:0 0 0 2px var(--g)}
+/* 条件の丸ボタン: 店舗案内の都道府県ボタン（shop-categoryList）と同じ */
 .scf-loc .scf-chips{display:flex;flex-wrap:wrap;gap:8px}
-.scf-loc .scf-chip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer}
-.scf-loc .scf-chip[aria-pressed="true"]{background:var(--g);border-color:var(--g);color:#fff}
-.scf-loc .scf-condacts{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
-.scf-loc .scf-clear{border:0;background:none;color:var(--sub);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
-.scf-loc .scf-msg{min-height:1.6em;font-size:14px;color:var(--sub);margin:4px 0 10px}
+.scf-loc .scf-chip{border:1px solid var(--g);background:rgba(255,255,255,.7);color:var(--g);border-radius:9999px;padding:6px 18px;font:inherit;font-size:14px;cursor:pointer;transition:all .3s}
+.scf-loc .scf-chip:hover{background:rgba(146,175,12,.5)}
+.scf-loc .scf-chip[aria-pressed="true"]{background:var(--g);color:#fff}
+.scf-loc .scf-condacts{display:flex;gap:14px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.scf-loc .scf-clear{border:0;background:none;color:var(--g2);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
+.scf-loc .scf-msg{min-height:1.6em;font-size:14px;color:var(--sub);margin:2px 0 10px}
 .scf-loc .scf-msg.err{color:#CF1212}
-.scf-loc .scf-cands{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
+.scf-loc .scf-cands{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 12px}
 .scf-loc .scf-cands:empty{display:none}
-.scf-loc .scf-cands button{border:1px solid var(--g);background:#fff;color:var(--g);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.scf-loc .scf-cands button{border:1px solid var(--g);background:rgba(255,255,255,.7);color:var(--g);border-radius:9999px;padding:5px 14px;font:inherit;font-size:13px;cursor:pointer;transition:all .3s}
+.scf-loc .scf-cands button:hover{background:rgba(146,175,12,.5)}
+/* 地図と一覧 */
 .scf-loc .scf-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px}
-.scf-loc .scf-map{height:540px;border-radius:12px;border:1px solid var(--line);z-index:0;overflow:hidden}
-.scf-loc .scf-list{list-style:none;margin:0;padding:0;max-height:540px;overflow:auto;display:flex;flex-direction:column;gap:10px}
-.scf-loc .scf-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer;transition:border-color .15s}
+.scf-loc .scf-map{height:540px;border-radius:10px;border:1px solid var(--line);z-index:0;overflow:hidden;background:#e8e6d6}
+.scf-loc .scf-list{list-style:none;margin:0;padding:0 4px 0 0;max-height:540px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.scf-loc .scf-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card);cursor:pointer;transition:border-color .2s,box-shadow .2s}
 .scf-loc .scf-item:hover,.scf-loc .scf-item.on{border-color:var(--g);box-shadow:0 0 0 1px var(--g) inset}
 .scf-loc .scf-top{display:flex;align-items:baseline;gap:8px}
-.scf-loc .scf-rank{flex:none;width:24px;height:24px;border-radius:50%;background:var(--g);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
-.scf-loc .scf-name{font-weight:700;font-size:16px;flex:1}
-.scf-loc .scf-dist{flex:none;font-weight:700;color:var(--g);font-size:15px}
+.scf-loc .scf-rank{flex:none;width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;font-family:"Jost",sans-serif;font-size:14px;font-weight:600;display:grid;place-items:center;align-self:center}
+.scf-loc .scf-name{font-weight:700;font-size:16px;flex:1;line-height:1.5}
+.scf-loc .scf-dist{flex:none;font-family:"Jost",sans-serif;font-weight:600;color:var(--g);font-size:17px}
 .scf-loc .scf-area{flex:none;color:var(--sub);font-size:12px}
-.scf-loc .scf-meta{font-size:13px;color:var(--sub);margin:4px 0 0}
-.scf-loc .scf-meta b{color:var(--ink);font-weight:500}
-.scf-loc .scf-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.scf-loc .scf-tags span{font-size:11px;font-weight:700;color:var(--g);background:var(--lg);border-radius:4px;padding:1px 7px}
-.scf-loc .scf-acts{display:flex;gap:8px;margin-top:10px}
-.scf-loc .scf-acts a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;border-radius:999px;padding:8px 6px}
-.scf-loc .scf-acts .go{background:var(--g);color:#fff}
-.scf-loc .scf-acts .pg{border:1px solid var(--g);color:var(--g);background:#fff}
-.scf-loc .scf-more{border:1px dashed var(--g);background:var(--lg);color:var(--g);border-radius:12px;padding:10px;font:inherit;font-weight:700;cursor:pointer}
+.scf-loc .scf-meta{font-size:13px;color:var(--sub);margin:4px 0 0;line-height:1.6}
+.scf-loc .scf-meta b{color:var(--g2);font-weight:700}
+/* 設備のタグ: 新着情報のカテゴリ（黄緑の角丸）に合わせる */
+.scf-loc .scf-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.scf-loc .scf-tags span{font-size:11px;font-weight:700;color:#fff;background:var(--lime);border-radius:20px;padding:2px 10px}
+.scf-loc .scf-acts{display:flex;gap:8px;margin-top:12px}
+.scf-loc .scf-acts a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;padding:9px 6px;transition:all .2s}
+.scf-loc .scf-acts .go{background:var(--g);color:#fff;border-radius:7px;border-bottom:3px solid var(--gold)}
+.scf-loc .scf-acts .go:hover{border-bottom-width:1px;transform:translateY(2px)}
+.scf-loc .scf-acts .pg{border:1px solid var(--g);color:var(--g);background:rgba(255,255,255,.7);border-radius:9999px}
+.scf-loc .scf-acts .pg:hover{background:rgba(146,175,12,.5)}
+.scf-loc .scf-more{border:1px solid var(--g);background:rgba(255,255,255,.7);color:var(--g);border-radius:9999px;padding:10px;font:inherit;font-weight:700;cursor:pointer;transition:all .3s}
+.scf-loc .scf-more:hover{background:rgba(146,175,12,.5)}
 .scf-loc .scf-note{font-size:12px;color:var(--sub);margin-top:10px}
 /* 店舗のピン: セルフカフェのマーク（mark.png）入りのしずく型。検索結果は大きくして右上に順位 */
 .scf-loc .scf-mk{padding-bottom:6px;cursor:pointer}
@@ -64,8 +83,8 @@ font-size:15px;padding:12px 22px;cursor:pointer;display:inline-flex;align-items:
 box-shadow:0 2px 5px rgba(0,0,0,.3);overflow:hidden}
 .scf-loc .scf-pin img{width:100%;height:100%;display:block;transform:rotate(45deg)}
 .scf-loc .scf-mk.on .scf-pin{width:42px;height:42px;border-width:3px}
-.scf-loc .scf-no{position:absolute;top:-8px;right:-11px;min-width:21px;height:21px;border-radius:11px;background:#92af0c;color:#fff;border:2px solid #fff;
-font-size:11px;font-weight:700;display:none;place-items:center;padding:0 4px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.scf-loc .scf-no{position:absolute;top:-8px;right:-11px;min-width:21px;height:21px;border-radius:11px;background:var(--lime);color:#fff;border:2px solid #fff;
+font-family:"Jost",sans-serif;font-size:12px;font-weight:600;display:none;place-items:center;padding:0 4px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .scf-loc .scf-mk.on .scf-no{display:grid}
 .scf-loc .scf-me{width:18px;height:18px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 6px rgba(26,115,232,.25)}
 .scf-loc .maplibregl-popup-content{font-size:13px;line-height:1.5;padding:10px 26px 10px 12px;border-radius:10px}
@@ -85,8 +104,8 @@ font-size:11px;font-weight:700;display:none;place-items:center;padding:0 4px;box
 .scf-loc .scf-list{max-height:420px}
 .scf-loc .scf-search .scf-btn{width:100%}
 .scf-loc .scf-or{display:none}
-.scf-loc h2{font-size:19px}
-.scf-loc .scf-lead{margin-bottom:10px}
+.scf-loc .scf-head{margin-bottom:12px}
+.scf-loc .scf-lead{font-size:13px}
 .scf-loc .scf-row{grid-template-columns:1fr;gap:6px}
 .scf-loc .scf-row > span{padding-top:0}
 .scf-loc .scf-condacts .scf-btn{width:100%}
@@ -94,8 +113,11 @@ font-size:11px;font-weight:700;display:none;place-items:center;padding:0 4px;box
 }
 </style>
 <div class="scf-loc" id="scf-loc">
+<div class="scf-head">
+<p class="scf-head_en">Search</p>
 <h2>近くのセルフカフェを探す</h2>
-<p class="scf-lead">現在地・駅名・店舗名から、またはエリアや設備の条件から店舗を探せます。</p>
+<p class="scf-lead">現在地・駅名・店舗名から、またはエリアや設備の条件から探せます。</p>
+</div>
 <div class="scf-search">
 <button type="button" class="scf-btn" data-scf="here">
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
@@ -156,7 +178,7 @@ var root = document.getElementById("scf-loc");
 // HP に iframe で埋め込まれたときは、枠の高さに収め、一覧だけをスクロールさせる
 if (window.self !== window.top) root.classList.add("in-frame");
 // ページ側に同じ見出しがあるとき（例: 固定ページ「近くのセルフカフェを探す」）は ?notitle で部品の見出しを隠す
-if (/[?&]notitle(&|=|$)/.test(location.search)) root.querySelector("h2").style.display = "none";
+if (/[?&]notitle(&|=|$)/.test(location.search)) root.querySelector(".scf-head").style.display = "none";
 var $ = function (k) { return root.querySelector('[data-scf="' + k + '"]'); };
 var msgEl = $("msg"), listEl = $("list"), candEl = $("cands"), input = $("q"), hereBtn = $("here");
 var prefSel = $("pref"), citySel = $("city"), condEl = $("cond");
