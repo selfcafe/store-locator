@@ -67,6 +67,7 @@ font-size:15px;padding:12px 24px;cursor:pointer;display:inline-flex;align-items:
 /* 設備のタグ: 新着情報のカテゴリ（黄緑の角丸）に合わせる */
 .scf-loc .scf-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .scf-loc .scf-tags span{font-size:11px;font-weight:700;color:#fff;background:var(--lime);border-radius:20px;padding:2px 10px}
+.scf-loc .scf-tags span.prep{background:#9aa3a8}
 .scf-loc .scf-acts{display:flex;gap:8px;margin-top:12px}
 .scf-loc .scf-acts a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;padding:9px 6px;transition:all .2s}
 .scf-loc .scf-acts .go{background:var(--g);color:#fff;border-radius:7px;border-bottom:3px solid var(--gold)}
@@ -453,7 +454,7 @@ w.innerHTML = '<div class="scf-pinbox"><div class="scf-bub"><span class="scf-dot
 markers[i] = MAP.marker(s, w, function () { selectPin(i); return popup(s); });
 }
 function popup(s) {
-return "<b>" + esc(s.name) + "</b><br>" + esc(s.address) + (s.time ? "<br>営業時間：" + esc(s.time) : "") +
+return "<b>" + esc(s.name) + "</b>" + (isPrep(s) ? "（" + esc(prepLabel(s).replace(/^.* (\S+) OPEN$/, "$1")) + " OPEN予定）" : "") + "<br>" + esc(s.address) + (s.time ? "<br>営業時間：" + esc(s.time) : "") +
 '<br><a href="' + esc(s.url) + '" target="_top">店舗ページ</a>　<a href="' + esc(routeUrl(s)) + '" target="_blank" rel="noopener">道順</a>';
 }
 // 最新の店舗は HP の店舗案内（REST）から読む。座標は控えと住所が同じなら控えのまま、違えば国土地理院で住所から求める
@@ -589,7 +590,8 @@ li.innerHTML =
 '<p class="scf-meta">' + esc(s.address) + "</p>" +
 (s.access ? '<p class="scf-meta">' + esc(s.access) + "</p>" : "") +
 (s.time ? '<p class="scf-meta"><b>営業時間</b> ' + esc(s.time) + (s.holiday ? "　<b>定休日</b> " + esc(s.holiday) : "") + "</p>" : "") +
-(tags.length ? '<div class="scf-tags">' + tags.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
+(tags.length || isPrep(s) ? '<div class="scf-tags">' + (isPrep(s) ? '<span class="prep">' + esc(prepLabel(s).replace(/^.* (\S+) OPEN$/, "$1")) + " OPEN予定</span>" : "") +
+tags.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
 '<div class="scf-acts"><a class="go" href="' + esc(routeUrl(s)) + '" target="_blank" rel="noopener">道順を見る</a><a class="pg" href="' + esc(s.url) + '" target="_top">店舗ページ</a></div>';
 li.addEventListener("click", function (e) {
 if (e.target.closest("a")) return;
