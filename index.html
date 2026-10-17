@@ -90,6 +90,8 @@ var STORES = [];
 var root = document.getElementById("scf-loc");
 // HP に iframe で埋め込まれたときは、枠の高さに収め、一覧だけをスクロールさせる
 if (window.self !== window.top) root.classList.add("in-frame");
+// ページ側に同じ見出しがあるとき（例: 固定ページ「近くのセルフカフェを探す」）は ?notitle で部品の見出しを隠す
+if (/[?&]notitle/.test(location.search)) root.querySelector("h2").style.display = "none";
 var $ = function (k) { return root.querySelector('[data-scf="' + k + '"]'); };
 var msgEl = $("msg"), listEl = $("list"), candEl = $("cands"), input = $("q"), hereBtn = $("here");
 var PAGE = 5, shown = PAGE, origin = null, ranked = [], markers = [], meMarker = null;
