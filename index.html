@@ -17,11 +17,11 @@ color:var(--ink);max-width:1200px;margin:0 auto;line-height:1.6;box-sizing:borde
 font-size:15px;padding:12px 24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;transition:all .2s}
 .scf-loc .scf-btn:hover{border-bottom-width:1px;transform:translateY(3px);min-height:49px}
 .scf-loc .scf-btn:disabled{opacity:.6;cursor:wait}
-.scf-loc .scf-form{flex:1 1 320px;display:flex;gap:8px;align-items:stretch}
+.scf-loc .scf-form{flex:1 1 260px;min-width:0;display:flex;gap:8px;align-items:stretch}
 .scf-loc .scf-form input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1px solid #ccc;border-radius:3px;padding:12px 16px;outline:0}
 .scf-loc .scf-form input:focus{border-color:#fff;box-shadow:0 0 0 2px var(--g)}
 .scf-loc .scf-form input::placeholder{color:#999}
-.scf-loc .scf-form button{appearance:none;border:0;border-bottom:4px solid var(--gold);border-radius:7px;background:var(--g);color:#fff;font:inherit;font-weight:700;padding:0 22px;cursor:pointer;transition:all .2s}
+.scf-loc .scf-form button{flex:none;appearance:none;border:0;border-bottom:4px solid var(--gold);border-radius:7px;background:var(--g);color:#fff;font:inherit;font-weight:700;padding:0 22px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .scf-loc .scf-form button:hover{border-bottom-width:1px;transform:translateY(3px)}
 .scf-loc .scf-or{align-self:center;color:var(--sub);font-size:13px}
 /* 条件から探す（開閉） */
@@ -109,7 +109,23 @@ font-family:"Jost",sans-serif;font-size:12px;font-weight:600;display:none;place-
 .scf-loc .scf-row{grid-template-columns:1fr;gap:6px}
 .scf-loc .scf-row > span{padding-top:0}
 .scf-loc .scf-condacts .scf-btn{width:100%}
-.scf-loc.in-frame .scf-body{grid-template-rows:240px minmax(0,1fr);gap:10px;min-height:480px}
+.scf-loc.in-frame .scf-body{grid-template-rows:220px minmax(0,1fr);gap:10px;min-height:400px}
+}
+/* 狭いスマホ（HP の店舗案内に埋め込むと幅 300px 前後）: 見出しを小さくし、説明文を省いて枠の高さに収める */
+@media (max-width:480px){
+.scf-loc .scf-head_en{font-size:1.75rem}
+.scf-loc .scf-head h2{font-size:1rem;margin-top:2px}
+.scf-loc .scf-lead{display:none}
+.scf-loc .scf-search{gap:8px;margin-bottom:8px}
+.scf-loc .scf-btn{min-height:46px;padding:10px 16px}
+.scf-loc .scf-form input{padding:10px 12px}
+.scf-loc .scf-form button{padding:0 14px}
+.scf-loc .scf-cond summary{padding:10px 14px}
+.scf-loc .scf-condbody{margin:0 14px}
+.scf-loc .scf-msg{font-size:13px;margin-bottom:8px}
+.scf-loc .scf-item{padding:12px}
+.scf-loc .scf-name{font-size:15px}
+.scf-loc .scf-acts a{font-size:12px}
 }
 </style>
 <div class="scf-loc" id="scf-loc">
