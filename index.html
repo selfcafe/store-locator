@@ -69,7 +69,7 @@ background:linear-gradient(rgba(239,236,208,0),rgba(239,236,208,.96))}
 .scf-loc .scf-guide{border:2px dashed var(--line);border-radius:10px;background:rgba(255,255,255,.6);color:var(--g2);text-align:center;padding:22px 16px;
 display:flex;flex-direction:column;align-items:center;gap:8px}
 .scf-loc .scf-guide p{margin:0;font-size:13px;line-height:1.7;color:var(--sub)}
-.scf-loc.in-frame .scf-body.idle .scf-list{justify-content:center}
+.scf-loc.in-frame .scf-body.idle .scf-list{justify-content:flex-start}
 .scf-loc .scf-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card);cursor:pointer;transition:border-color .2s,box-shadow .2s}
 .scf-loc .scf-item:hover,.scf-loc .scf-item.on{border-color:var(--g);box-shadow:0 0 0 1px var(--g) inset}
 .scf-loc .scf-top{display:flex;align-items:baseline;gap:8px}
@@ -650,7 +650,7 @@ listEl.innerHTML = "";
 if (!ranked.length && bodyEl.classList.contains("idle")) {
 listEl.innerHTML = '<li class="scf-guide"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">' +
 '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>' +
-"<p>「現在地から探す」か、駅名・店舗名で検索すると、<br>近いお店がここに表示されます。</p></li>";
+"<p>「現在地から探す」か、駅名・店舗名で検索すると、近いお店がここに表示されます。</p></li>";
 lheadEl.innerHTML = "";
 lwrapEl.classList.remove("more");
 return;
