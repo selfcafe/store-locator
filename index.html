@@ -7,9 +7,11 @@ font-family:"Noto Sans JP","Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","H
 color:var(--ink);max-width:1200px;margin:0 auto;line-height:1.6;box-sizing:border-box;letter-spacing:.02em}
 .scf-loc *,.scf-loc *::before,.scf-loc *::after{box-sizing:border-box}
 /* 見出し: HP のセクション見出し（英字 Jost ＋ 日本語）に合わせる */
-.scf-loc .scf-head{text-align:center;margin:0 0 18px}
-.scf-loc .scf-head_en{margin:0;font-family:"Jost",sans-serif;font-weight:600;color:var(--g2);font-size:clamp(2rem,1.7rem + 1.2vw,2.75rem);line-height:1.1;letter-spacing:.04em}
-.scf-loc .scf-head h2{margin:6px 0 0;font-size:clamp(1.0625rem,1rem + .3vw,1.25rem);font-weight:700;color:var(--ink)}
+/* 見出し（デザイン案 C、2026-10-19）: 店舗案内の県名見出し（c-title02）と同じ点線の下線・左寄せ。英字は入れない */
+.scf-loc .scf-head{margin:0 0 14px}
+.scf-loc .scf-head h2{margin:0;font-size:clamp(1.1875rem,1.05rem + .5vw,1.5rem);font-weight:900;color:var(--ink);line-height:1.4;
+display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:2px dashed var(--g)}
+.scf-loc .scf-head h2 svg{color:var(--g);flex:none}
 .scf-loc .scf-lead{margin:8px 0 0;color:var(--sub);font-size:14px}
 /* 検索の行 */
 .scf-loc .scf-search{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;margin-bottom:12px}
@@ -24,6 +26,18 @@ font-size:15px;padding:12px 24px;cursor:pointer;display:inline-flex;align-items:
 .scf-loc .scf-form button{flex:none;appearance:none;border:0;border-bottom:4px solid var(--gold);border-radius:7px;background:var(--g);color:#fff;font:inherit;font-weight:700;padding:0 22px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .scf-loc .scf-form button:hover{border-bottom-width:1px;transform:translateY(3px)}
 .scf-loc .scf-or{align-self:center;color:var(--sub);font-size:13px}
+/* 探し方のタブ（現在地・駅名／条件で探す） */
+.scf-loc .scf-tabs{display:flex;border-bottom:2px solid var(--g)}
+.scf-loc .scf-tab{flex:1;appearance:none;border:0;background:transparent;color:var(--g);font:inherit;font-weight:700;font-size:14px;padding:10px 6px;cursor:pointer;
+border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;gap:6px}
+.scf-loc .scf-tab:hover{background:rgba(146,175,12,.25)}
+.scf-loc .scf-tab.on{background:var(--g);color:#fff}
+.scf-loc .scf-tabcnt{min-width:20px;height:20px;border-radius:10px;background:var(--lime);color:#fff;font-family:"Jost",sans-serif;font-size:12px;font-weight:600;
+display:inline-grid;place-items:center;padding:0 5px}
+.scf-loc .scf-tabcnt:empty{display:none}
+.scf-loc .scf-panel{background:#fff;border:1px solid var(--g);border-top:0;border-radius:0 0 8px 8px;padding:14px;margin-bottom:12px}
+.scf-loc .scf-panel[hidden]{display:none}
+.scf-loc .scf-panel .scf-search{margin-bottom:0}
 /* 条件から探す（開閉） */
 .scf-loc .scf-cond{border:1px solid var(--g);border-radius:10px;background:rgba(255,255,255,.7);margin-bottom:12px}
 .scf-loc .scf-cond summary{list-style:none;cursor:pointer;padding:12px 18px;font-weight:700;color:var(--g);display:flex;align-items:center;gap:10px}
@@ -127,7 +141,7 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 .scf-loc.in-frame{height:calc(100vh - 16px);display:flex;flex-direction:column;overflow:auto}
 .scf-loc.in-frame .scf-body{flex:1;min-height:300px}
 /* 条件の欄を開いている間は、地図と一覧を縮めて枠の中に収める（枠の中でスクロールが止まらないように） */
-.scf-loc.in-frame:has(.scf-cond[open]) .scf-body{min-height:120px}
+.scf-loc.in-frame:has([data-scf="p2"]:not([hidden])) .scf-body{min-height:120px}
 .scf-loc.in-frame .scf-map{height:100%}
 .scf-loc.in-frame .scf-listwrap{height:100%}
 .scf-loc.in-frame .scf-list{max-height:none;flex:1;min-height:0}
@@ -148,8 +162,9 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 }
 /* 狭いスマホ（HP の店舗案内に埋め込むと幅 300px 前後）: 見出しを小さくし、説明文を省いて枠の高さに収める */
 @media (max-width:480px){
-.scf-loc .scf-head_en{font-size:1.75rem}
-.scf-loc .scf-head h2{font-size:1rem;margin-top:2px}
+.scf-loc .scf-head h2{font-size:1.0625rem;padding-bottom:8px}
+.scf-loc .scf-panel{padding:12px}
+.scf-loc .scf-panel .scf-condbody{margin:0;padding:0;border-top:0}
 .scf-loc .scf-lead{display:none}
 .scf-loc .scf-search{gap:8px;margin-bottom:8px}
 .scf-loc .scf-btn{min-height:46px;padding:10px 16px}
@@ -176,23 +191,26 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 </style>
 <div class="scf-loc" id="scf-loc">
 <div class="scf-head">
-<p class="scf-head_en">Search</p>
-<h2>近くのセルフカフェを探す</h2>
-<p class="scf-lead">現在地・駅名・店舗名から、またはエリアや設備の条件から探せます。</p>
+<h2><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>近くのセルフカフェを探す</h2>
+<p class="scf-lead">現在地・駅名・店舗名、またはエリアや設備から探せます。</p>
 </div>
+<div class="scf-tabs" role="tablist">
+<button type="button" role="tab" class="scf-tab on" data-scf="tab1" aria-selected="true" aria-controls="scf-p1">現在地・駅名</button>
+<button type="button" role="tab" class="scf-tab" data-scf="tab2" aria-selected="false" aria-controls="scf-p2">条件で探す<span class="scf-tabcnt" data-scf="condsum"></span></button>
+</div>
+<div class="scf-panel" id="scf-p1" role="tabpanel" data-scf="p1">
 <div class="scf-search">
 <button type="button" class="scf-btn" data-scf="here">
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
 現在地から探す
 </button>
-<span class="scf-or">または</span>
 <form class="scf-form" data-scf="form" role="search">
 <input type="search" data-scf="q" placeholder="駅名・店舗名を入力" aria-label="駅名・店舗名" enterkeyhint="search">
 <button type="submit">検索</button>
 </form>
 </div>
-<details class="scf-cond" data-scf="cond">
-<summary><span class="scf-condttl">条件から探す</span> <span class="scf-condsum" data-scf="condsum">エリア・設備</span></summary>
+</div>
+<div class="scf-panel" id="scf-p2" role="tabpanel" data-scf="p2" hidden>
 <div class="scf-condbody">
 <div class="scf-row"><span>エリア</span>
 <div class="scf-selects">
@@ -206,7 +224,7 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 <button type="button" class="scf-btn" data-scf="go">この条件で探す（<span data-scf="count">0</span>店舗）</button>
 </div>
 </div>
-</details>
+</div>
 <div class="scf-msg" data-scf="msg" aria-live="polite"></div>
 <div class="scf-cands" data-scf="cands"></div>
 <div class="scf-body empty" data-scf="body">
@@ -248,16 +266,42 @@ var STORES = [];
 var root = document.getElementById("scf-loc");
 // HP に iframe で埋め込まれたときは、枠の高さに収め、一覧だけをスクロールさせる
 if (window.self !== window.top) root.classList.add("in-frame");
+// 枠の高さの自動調整: 中身の高さを親ページに知らせる。親ページ（HP の店舗案内）が対応していると
+// "scf-auto" が返ってくるので、そのときは枠いっぱいに収める作りをやめて、中身の高さのまま表示する（2026-10-19）
+if (window.self !== window.top) {
+var postH = function () { try { window.parent.postMessage({ type: "scf-height", h: Math.ceil(document.body.getBoundingClientRect().height) }, "*"); } catch (e) {} };
+window.addEventListener("message", function (e) {
+if (e.source === window.parent && e.data && e.data.type === "scf-auto" && !root.classList.contains("auto-h")) {
+root.classList.remove("in-frame");
+root.classList.add("auto-h");
+postH();
+}
+});
+if (window.ResizeObserver) new ResizeObserver(postH).observe(document.body); else setInterval(postH, 1000);
+window.addEventListener("load", postH);
+postH();
+}
 // ページ側に同じ見出しがあるとき（例: 固定ページ「近くのセルフカフェを探す」）は ?notitle で部品の見出しを隠す
 if (/[?&]notitle(&|=|$)/.test(location.search)) root.querySelector(".scf-head").style.display = "none";
 var $ = function (k) { return root.querySelector('[data-scf="' + k + '"]'); };
 var msgEl = $("msg"), listEl = $("list"), candEl = $("cands"), input = $("q"), hereBtn = $("here");
-var prefSel = $("pref"), citySel = $("city"), condEl = $("cond"), bodyEl = $("body"), lwrapEl = $("lwrap"), lheadEl = $("lhead");
+var prefSel = $("pref"), citySel = $("city"), bodyEl = $("body"), lwrapEl = $("lwrap"), lheadEl = $("lhead");
 // 一覧に続きがあるか（下までスクロールしたら消す）
 function updateMore() { lwrapEl.classList.toggle("more", listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight > 8); }
 listEl.addEventListener("scroll", updateMore);
 // 検索したら一覧を出す（地図を合わせる前に呼ぶ）・条件の欄は閉じる
-function showResults() { bodyEl.classList.remove("empty", "idle"); condEl.open = false; listEl.scrollTop = 0; }
+function showResults() { bodyEl.classList.remove("empty", "idle"); listEl.scrollTop = 0; }
+// 探し方のタブ（1: 現在地・駅名、2: 条件で探す）
+function selectTab(n) {
+[1, 2].forEach(function (k) {
+var on = k === n;
+$("tab" + k).classList.toggle("on", on);
+$("tab" + k).setAttribute("aria-selected", on ? "true" : "false");
+$("p" + k).hidden = !on;
+});
+}
+$("tab1").onclick = function () { selectTab(1); };
+$("tab2").onclick = function () { selectTab(2); };
 var PAGE = 5, shown = PAGE, origin = null, place = null, ranked = [], markers = [], meMarker = null, last = null, picked = {};
 // ---- 地図 ----
 // Google マップを使う（ズームの数字は Google 基準）。キーが無い・読み込めない・認証に失敗したときは OpenFreeMap に切り替える。
@@ -604,7 +648,7 @@ function updateCount() {
 var n = STORES.filter(function (s) { return areaOk(s) && featOk(s); }).length;
 $("count").textContent = n;
 var parts = [prefSel.value, citySel.value].filter(Boolean).concat(pickedLabels());
-$("condsum").textContent = parts.length ? parts.join("・") : "エリア・設備";
+$("condsum").textContent = parts.length ? parts.length : "";  // 条件タブに、選んでいる条件の数
 }
 prefSel.onchange = function () { citySel.value = ""; fillCities(); updateCount(); };
 citySel.onchange = updateCount;
@@ -613,7 +657,7 @@ picked = {};
 root.querySelectorAll(".scf-chip").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
 prefSel.value = ""; fillCities(); updateCount();
 };
-$("go").onclick = function () { candEl.innerHTML = ""; byCondition(false); condEl.open = false; };
+$("go").onclick = function () { candEl.innerHTML = ""; selectTab(1); byCondition(false); };
 // 条件で探す。現在地・駅などで探したあとなら、その場所から近い順のまま絞り込む（2026-10-19 伊藤さんの指摘）
 function byCondition(quiet) {
 if (!quiet) showResults();
