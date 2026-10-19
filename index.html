@@ -236,7 +236,8 @@ var PREFS = ["北海道","青森県","岩手県","宮城県","秋田県","山形
 var AREA_ORDER = ["愛知県", "大阪府", "東京都", "岩手県", "岐阜県", "静岡県", "三重県", "埼玉県", "千葉県", "滋賀県", "鳥取県"];
 function prefRank(p) { var i = AREA_ORDER.indexOf(p); return i >= 0 ? i : 100 + PREFS.indexOf(p); }
 function areaSort(a, b) {
-return (prefRank(a.s.pref) - prefRank(b.s.pref)) || a.s.city.localeCompare(b.s.city, "ja") || shortName(a.s.name).localeCompare(shortName(b.s.name), "ja");
+// 同じ県の中では、OPEN 前の店を後ろに
+return (prefRank(a.s.pref) - prefRank(b.s.pref)) || (isPrep(a.s) - isPrep(b.s)) || a.s.city.localeCompare(b.s.city, "ja") || shortName(a.s.name).localeCompare(shortName(b.s.name), "ja");
 }
 var STORES = [];
 var root = document.getElementById("scf-loc");
