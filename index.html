@@ -121,7 +121,9 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 .scf-loc .gm-style .gm-style-iw a:focus:not(:focus-visible){outline:none}
 /* iframe の中: 枠の高さに収め、地図と一覧の部分で高さを分け合う（条件を開いて足りないときは枠の中でスクロール） */
 .scf-loc.in-frame{height:calc(100vh - 16px);display:flex;flex-direction:column;overflow:auto}
-.scf-loc.in-frame .scf-body{flex:1;min-height:420px}
+.scf-loc.in-frame .scf-body{flex:1;min-height:300px}
+/* 条件の欄を開いている間は、地図と一覧を縮めて枠の中に収める（枠の中でスクロールが止まらないように） */
+.scf-loc.in-frame:has(.scf-cond[open]) .scf-body{min-height:120px}
 .scf-loc.in-frame .scf-map{height:100%}
 .scf-loc.in-frame .scf-listwrap{height:100%}
 .scf-loc.in-frame .scf-list{max-height:none;flex:1;min-height:0}
@@ -136,7 +138,7 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 .scf-loc .scf-row{grid-template-columns:1fr;gap:6px}
 .scf-loc .scf-row > span{padding-top:0}
 .scf-loc .scf-condacts .scf-btn{width:100%}
-.scf-loc.in-frame .scf-body{grid-template-rows:190px minmax(0,1fr);gap:10px;min-height:400px}
+.scf-loc.in-frame .scf-body{grid-template-rows:minmax(110px,190px) minmax(0,1fr);gap:10px;min-height:220px}
 .scf-loc.in-frame .scf-body.empty{grid-template-rows:minmax(0,1fr)}
 }
 /* 狭いスマホ（HP の店舗案内に埋め込むと幅 300px 前後）: 見出しを小さくし、説明文を省いて枠の高さに収める */
@@ -149,7 +151,12 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 .scf-loc .scf-form input{padding:10px 12px}
 .scf-loc .scf-form button{padding:0 14px}
 .scf-loc .scf-cond summary{padding:10px 14px}
-.scf-loc .scf-condbody{margin:0 14px}
+.scf-loc .scf-condbody{margin:0 14px;padding-top:10px;padding-bottom:12px;gap:10px}
+/* 条件の欄を詰める（都道府県と市区町村を横並び、丸ボタンを小さめに） */
+.scf-loc select{min-width:0;flex:1 1 110px;font-size:14px;padding:8px 8px}
+.scf-loc .scf-chips{gap:6px}
+.scf-loc .scf-chip{padding:4px 12px;font-size:13px}
+.scf-loc .scf-condacts .scf-btn{min-height:44px}
 .scf-loc .scf-msg{font-size:13px;margin-bottom:8px}
 /* 店のカードを詰めて、1 画面に 2〜3 店見えるようにする（アクセスは省き、住所は 1 行） */
 .scf-loc .scf-item{padding:10px 12px}
@@ -184,8 +191,8 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 <div class="scf-condbody">
 <div class="scf-row"><span>エリア</span>
 <div class="scf-selects">
-<select data-scf="pref" aria-label="都道府県"><option value="">都道府県（すべて）</option></select>
-<select data-scf="city" aria-label="市区町村" disabled><option value="">市区町村（すべて）</option></select>
+<select data-scf="pref" aria-label="都道府県"><option value="">都道府県</option></select>
+<select data-scf="city" aria-label="市区町村" disabled><option value="">市区町村</option></select>
 </div>
 </div>
 <div class="scf-row"><span>設備・サービス</span><div class="scf-chips" data-scf="chips"></div></div>
@@ -225,6 +232,12 @@ var FEATURES = [
 var PREFS = ["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県","茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県",
 "新潟県","富山県","石川県","福井県","山梨県","長野県","岐阜県","静岡県","愛知県","三重県","滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県",
 "鳥取県","島根県","岡山県","広島県","山口県","徳島県","香川県","愛媛県","高知県","福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"];
+// 都道府県の並びは HP の店舗案内（/shop/ の都道府県ボタン）と同じ順。載っていない県は北から
+var AREA_ORDER = ["愛知県", "大阪府", "東京都", "岩手県", "岐阜県", "静岡県", "三重県", "埼玉県", "千葉県", "滋賀県", "鳥取県"];
+function prefRank(p) { var i = AREA_ORDER.indexOf(p); return i >= 0 ? i : 100 + PREFS.indexOf(p); }
+function areaSort(a, b) {
+return (prefRank(a.s.pref) - prefRank(b.s.pref)) || a.s.city.localeCompare(b.s.city, "ja") || shortName(a.s.name).localeCompare(shortName(b.s.name), "ja");
+}
 var STORES = [];
 var root = document.getElementById("scf-loc");
 // HP に iframe で埋め込まれたときは、枠の高さに収め、一覧だけをスクロールさせる
@@ -239,7 +252,7 @@ function updateMore() { lwrapEl.classList.toggle("more", listEl.scrollHeight - l
 listEl.addEventListener("scroll", updateMore);
 // 検索したら一覧を出す（地図を合わせる前に呼ぶ）・条件の欄は閉じる
 function showResults() { bodyEl.classList.remove("empty"); condEl.open = false; listEl.scrollTop = 0; }
-var PAGE = 5, shown = PAGE, origin = null, ranked = [], markers = [], meMarker = null, last = null, picked = {};
+var PAGE = 5, shown = PAGE, origin = null, place = null, ranked = [], markers = [], meMarker = null, last = null, picked = {};
 // ---- 地図 ----
 // Google マップを使う（ズームの数字は Google 基準）。キーが無い・読み込めない・認証に失敗したときは OpenFreeMap に切り替える。
 // ピンや現在地は「ハンドル」で持ち、地図の準備ができる前に作っても、切り替えたあとでも付け直す
@@ -545,7 +558,7 @@ STORES.forEach(addMarker);
 fillPrefs();
 updateCount();
 if (last) rerun(true);
-else if (STORES.length) MAP.fit(STORES.map(function (s) { return [s.lat, s.lng]; }), 16, 20, false);
+else if (STORES.length) { MAP.fit(STORES.map(function (s) { return [s.lat, s.lng]; }), 16, 20, false); listAll(); }
 }
 // ---- 条件（エリア・設備） ----
 FEATURES.forEach(function (f) {
@@ -561,7 +574,7 @@ $("chips").appendChild(b);
 function fillPrefs() {
 var cur = prefSel.value, have = {};
 STORES.forEach(function (s) { have[s.pref] = (have[s.pref] || 0) + 1; });
-prefSel.innerHTML = '<option value="">都道府県（すべて）</option>' + PREFS.filter(function (p) { return have[p]; })
+prefSel.innerHTML = '<option value="">都道府県</option>' + PREFS.filter(function (p) { return have[p]; }).sort(function (a, b) { return prefRank(a) - prefRank(b); })
 .map(function (p) { return '<option value="' + p + '">' + p + "（" + have[p] + "）</option>"; }).join("");
 prefSel.value = have[cur] ? cur : "";
 fillCities();
@@ -574,7 +587,7 @@ if (!have[s.city]) order.push(s.city);
 have[s.city] = (have[s.city] || 0) + 1;
 });
 order.sort(function (a, b) { return a.localeCompare(b, "ja"); });
-citySel.innerHTML = '<option value="">市区町村（すべて）</option>' + order.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + "（" + have[c] + "）</option>"; }).join("");
+citySel.innerHTML = '<option value="">市区町村</option>' + order.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + "（" + have[c] + "）</option>"; }).join("");
 citySel.disabled = !prefSel.value;
 citySel.value = have[cur] ? cur : "";
 }
@@ -595,22 +608,34 @@ root.querySelectorAll(".scf-chip").forEach(function (b) { b.setAttribute("aria-p
 prefSel.value = ""; fillCities(); updateCount();
 };
 $("go").onclick = function () { candEl.innerHTML = ""; byCondition(false); condEl.open = false; };
+// 条件で探す。現在地・駅などで探したあとなら、その場所から近い順のまま絞り込む（2026-10-19 伊藤さんの指摘）
 function byCondition(quiet) {
 if (!quiet) showResults();
 last = { type: "cond" };
-origin = null;
-if (meMarker) { meMarker.remove(); meMarker = null; }
 MAP.closePopup();
-ranked = STORES.map(function (s, i) { return { s: s, i: i, d: null }; }).filter(function (r) { return areaOk(r.s) && featOk(r.s); })
-.sort(function (a, b) {
-return (PREFS.indexOf(a.s.pref) - PREFS.indexOf(b.s.pref)) || a.s.city.localeCompare(b.s.city, "ja") || shortName(a.s.name).localeCompare(shortName(b.s.name), "ja");
-});
+var cond = [prefSel.value, citySel.value].filter(Boolean).concat(pickedLabels()).join("・") || "すべての店舗";
+var list = STORES.map(function (s, i) { return { s: s, i: i, d: origin ? km(origin, s) : null }; }).filter(function (r) { return areaOk(r.s) && featOk(r.s); });
+ranked = origin ? list.sort(function (a, b) { return a.d - b.d; }) : list.sort(areaSort);
 if (!quiet) {
 shown = PAGE;
-var cond = [prefSel.value, citySel.value].filter(Boolean).concat(pickedLabels()).join("・") || "すべての店舗";
-if (ranked.length) { MAP.fit(ranked.map(function (r) { return [r.s.lat, r.s.lng]; }), 15, 50); say("条件（" + cond + "）に合う店舗：" + ranked.length + "店"); }
-else say("条件（" + cond + "）に合う店舗はありませんでした。条件を減らしてお試しください。", true);
+if (!ranked.length) say("条件（" + cond + "）に合う店舗はありませんでした。条件を減らしてお試しください。", true);
+else if (origin) {
+var near = ranked.slice(0, 3).map(function (r) { return [r.s.lat, r.s.lng]; });
+near.push([origin.lat, origin.lng]);
+MAP.fit(near, 16, 50);
+say(place.label + "から近い順に、条件（" + cond + "）に合う店舗：" + ranked.length + "店");
+} else {
+MAP.fit(ranked.map(function (r) { return [r.s.lat, r.s.lng]; }), 15, 50);
+say("条件（" + cond + "）に合う店舗：" + ranked.length + "店");
 }
+}
+render();
+}
+// 検索する前: 全店をエリア順に（地図は全店が入る範囲）
+function listAll() {
+ranked = STORES.map(function (s, i) { return { s: s, i: i, d: null }; }).sort(areaSort);
+shown = PAGE;
+bodyEl.classList.remove("empty");
 render();
 }
 // ---- 一覧 ----
@@ -646,7 +671,7 @@ more.onclick = function () { shown += PAGE; render(); };
 var li = document.createElement("li"); li.style.display = "grid"; li.appendChild(more); listEl.appendChild(li);
 }
 var near = ranked.length && ranked[0].d != null;
-lheadEl.innerHTML = ranked.length ? (near ? "近い順・" : "") + "全" + ranked.length + "店" : "";
+lheadEl.innerHTML = ranked.length ? (near ? "近い順・" : last ? "" : "エリア順・") + "全" + ranked.length + "店" : "";
 setTimeout(function () {
 updateMore();
 if (lwrapEl.classList.contains("more") && ranked.length > 1) lheadEl.innerHTML += "<small>下にスクロールで続きを表示</small>";
@@ -657,6 +682,7 @@ if (lwrapEl.classList.contains("more") && ranked.length > 1) lheadEl.innerHTML +
 function searchFrom(pt, label, quiet) {
 if (!quiet) showResults();
 last = { type: "point", pt: pt, label: label };
+place = { pt: pt, label: label };  // 条件で絞ったときも、この場所から近い順にする
 origin = { lat: +pt.lat.toFixed(5), lng: +pt.lng.toFixed(5) };
 ranked = STORES.map(function (s, i) { return { s: s, i: i, d: km(origin, s) }; }).filter(function (r) { return featOk(r.s); })
 .sort(function (a, b) { return a.d - b.d; });
