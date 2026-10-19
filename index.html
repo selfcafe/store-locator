@@ -66,6 +66,10 @@ background:linear-gradient(rgba(239,236,208,0),rgba(239,236,208,.96))}
 /* 検索する前は一覧を出さず、地図を広く使う */
 .scf-loc .scf-body.empty{grid-template-columns:minmax(0,1fr)}
 .scf-loc .scf-body.empty .scf-listwrap{display:none}
+.scf-loc .scf-guide{border:2px dashed var(--line);border-radius:10px;background:rgba(255,255,255,.6);color:var(--g2);text-align:center;padding:22px 16px;
+display:flex;flex-direction:column;align-items:center;gap:8px}
+.scf-loc .scf-guide p{margin:0;font-size:13px;line-height:1.7;color:var(--sub)}
+.scf-loc.in-frame .scf-body.idle .scf-list{justify-content:center}
 .scf-loc .scf-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card);cursor:pointer;transition:border-color .2s,box-shadow .2s}
 .scf-loc .scf-item:hover,.scf-loc .scf-item.on{border-color:var(--g);box-shadow:0 0 0 1px var(--g) inset}
 .scf-loc .scf-top{display:flex;align-items:baseline;gap:8px}
@@ -140,6 +144,7 @@ font-weight:600;font-size:15px;line-height:1;display:grid;place-items:center;box
 .scf-loc .scf-condacts .scf-btn{width:100%}
 .scf-loc.in-frame .scf-body{grid-template-rows:minmax(110px,190px) minmax(0,1fr);gap:10px;min-height:220px}
 .scf-loc.in-frame .scf-body.empty{grid-template-rows:minmax(0,1fr)}
+.scf-loc.in-frame .scf-body.idle{grid-template-rows:minmax(110px,300px) minmax(0,1fr)}
 }
 /* 狭いスマホ（HP の店舗案内に埋め込むと幅 300px 前後）: 見出しを小さくし、説明文を省いて枠の高さに収める */
 @media (max-width:480px){
@@ -252,7 +257,7 @@ var prefSel = $("pref"), citySel = $("city"), condEl = $("cond"), bodyEl = $("bo
 function updateMore() { lwrapEl.classList.toggle("more", listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight > 8); }
 listEl.addEventListener("scroll", updateMore);
 // 検索したら一覧を出す（地図を合わせる前に呼ぶ）・条件の欄は閉じる
-function showResults() { bodyEl.classList.remove("empty"); condEl.open = false; listEl.scrollTop = 0; }
+function showResults() { bodyEl.classList.remove("empty", "idle"); condEl.open = false; listEl.scrollTop = 0; }
 var PAGE = 5, shown = PAGE, origin = null, place = null, ranked = [], markers = [], meMarker = null, last = null, picked = {};
 // ---- 地図 ----
 // Google マップを使う（ズームの数字は Google 基準）。キーが無い・読み込めない・認証に失敗したときは OpenFreeMap に切り替える。
@@ -559,7 +564,7 @@ STORES.forEach(addMarker);
 fillPrefs();
 updateCount();
 if (last) rerun(true);
-else if (STORES.length) { MAP.fit(STORES.map(function (s) { return [s.lat, s.lng]; }), 16, 20, false); listAll(); }
+else if (STORES.length) { MAP.fit(STORES.map(function (s) { return [s.lat, s.lng]; }), 16, 20, false); showIdle(); }
 }
 // ---- 条件（エリア・設備） ----
 FEATURES.forEach(function (f) {
@@ -632,16 +637,24 @@ say("条件（" + cond + "）に合う店舗：" + ranked.length + "店");
 }
 render();
 }
-// 検索する前: 全店をエリア順に（地図は全店が入る範囲）
-function listAll() {
-ranked = STORES.map(function (s, i) { return { s: s, i: i, d: null }; }).sort(areaSort);
-shown = PAGE;
+// 検索する前: 店の一覧は出さず、一覧の場所に探し方の案内を出す（地図は全店が入る範囲）。2026-10-19 ユーザー指定
+function showIdle() {
+ranked = [];
 bodyEl.classList.remove("empty");
+bodyEl.classList.add("idle");
 render();
 }
 // ---- 一覧 ----
 function render() {
 listEl.innerHTML = "";
+if (!ranked.length && bodyEl.classList.contains("idle")) {
+listEl.innerHTML = '<li class="scf-guide"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">' +
+'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>' +
+"<p>「現在地から探す」か、駅名・店舗名で検索すると、<br>近いお店がここに表示されます。</p></li>";
+lheadEl.innerHTML = "";
+lwrapEl.classList.remove("more");
+return;
+}
 STORES.forEach(function (s, i) { markers[i].el.classList.remove("sel"); setPin(i, ""); });
 ranked.slice(0, shown).forEach(function (r, n) {
 var s = r.s, li = document.createElement("li"), tags = tagsOf(s);
@@ -672,7 +685,7 @@ more.onclick = function () { shown += PAGE; render(); };
 var li = document.createElement("li"); li.style.display = "grid"; li.appendChild(more); listEl.appendChild(li);
 }
 var near = ranked.length && ranked[0].d != null;
-lheadEl.innerHTML = ranked.length ? (near ? "近い順・" : last ? "" : "エリア順・") + "全" + ranked.length + "店" : "";
+lheadEl.innerHTML = ranked.length ? (near ? "近い順・" : "") + "全" + ranked.length + "店" : "";
 setTimeout(function () {
 updateMore();
 if (lwrapEl.classList.contains("more") && ranked.length > 1) lheadEl.innerHTML += "<small>下にスクロールで続きを表示</small>";
