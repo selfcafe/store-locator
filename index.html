@@ -271,6 +271,17 @@ handles.forEach(function (h) { h.m = null; });
 el.innerHTML = "";
 maplibreApi(el).then(function (a) { if (my === gen) use(a); });
 }
+// 枠の大きさが変わったら（iframe の高さが後から決まる・検索で一覧が出て地図が狭くなる・画面の回転）、最後に合わせた範囲に合わせ直す
+if (window.ResizeObserver) {
+var roTimer = null, lastSize = "";
+new ResizeObserver(function () {
+var size = el.clientWidth + "x" + el.clientHeight;
+if (size === lastSize) return;
+lastSize = size;
+clearTimeout(roTimer);
+roTimer = setTimeout(function () { if (api && lastFit) api.fit(lastFit[0], lastFit[1], lastFit[2], false); }, 150);
+}).observe(el);
+}
 if (GMAPS.key) googleApi(el, GMAPS, toFallback).then(function (a) { if (!api) use(a); }).catch(toFallback);
 else toFallback();
 return {
