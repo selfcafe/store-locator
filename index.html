@@ -298,14 +298,34 @@ document.head.appendChild(gs);
 var parentUrl = (function () { try { return new URL(document.referrer || location.href); } catch (e) { return location; } })();
 var device = /iPad|Tablet/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1) ? "tablet"
 : /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "sp" : "pc";
-// r: click（押した）/ granted（許可）/ denied（拒否）/ failed（取得失敗）/ unsupported（非対応）。記録用 Apps Script が日本語にして残す
-function trackHere(r) {
-try { if (TRACK.ga) gtag("event", "store_locator_here", { result: r, device_type: device, embed_host: parentUrl.hostname }); } catch (e) {}
+// r: click（押した）/ granted（許可）/ denied（拒否）/ failed（取得失敗）/ unsupported（非対応）
+//    / search（駅名・店名で検索）/ notfound（検索して見つからず）。記録用 Apps Script が日本語にして残す
+// x（2026-10-27 追加）: area＝市区町村（例: 愛知県名古屋市中村区）、q＝検索ワード、place＝検索した場所、
+//    store・km＝いちばん近い店とその距離。座標は記録先に送らない（市区町村まで。2026-10-27 ユーザー決定）
+function trackHere(r, x) {
+try { if (TRACK.ga && !/^(search|notfound)$/.test(r)) gtag("event", "store_locator_here", { result: r, device_type: device, embed_host: parentUrl.hostname }); } catch (e) {}
 if (!TRACK.log) return;
+var o = { r: r, d: device, host: parentUrl.hostname, path: parentUrl.pathname };
+for (var k in x || {}) o[k] = x[k];
+// 日本語は \uXXXX にして送る（Apps Script 側で本文の文字コードが UTF-8 と伝わらず化けるため）
+var body = JSON.stringify(o).replace(/[\u007f-￿]/g, function (c) { return "\\u" + ("000" + c.charCodeAt(0).toString(16)).slice(-4); });
 try {
-fetch(TRACK.log, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" },
-body: JSON.stringify({ r: r, d: device, host: parentUrl.hostname, path: parentUrl.pathname }) }).catch(function () {});
+fetch(TRACK.log, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: body }).catch(function () {});
 } catch (e) {}
+}
+// 記録用: 地点の市区町村（HeartRails Geo API）と、いちばん近い店（OPEN 前の店は除く）・その距離（km、小数 1 桁）を足して送る。
+// 市区町村が取れなくても（3 秒で打ち切り）残りは送る
+function trackAt(r, x, pt) {
+var best = null;
+STORES.forEach(function (s) { if (isPrep(s)) return; var d = km(pt, s); if (!best || d < best.d) best = { s: s, d: d }; });
+if (best) { x.store = shortName(best.s.name); x.km = Math.round(best.d * 10) / 10; }
+if (!TRACK.log) return trackHere(r, x);
+var done = false, send = function (area) { if (done) return; done = true; if (area) x.area = area; trackHere(r, x); };
+setTimeout(send, 3000);
+fetch("https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=" + (+pt.lng).toFixed(3) + "&y=" + (+pt.lat).toFixed(3))
+.then(function (res) { return res.json(); })
+.then(function (j) { var l = j.response && j.response.location && j.response.location[0]; send(l ? l.prefecture + l.city : ""); })
+.catch(function () { send(""); });
 }
 var $ = function (k) { return root.querySelector('[data-scf="' + k + '"]'); };
 var msgEl = $("msg"), listEl = $("list"), candEl = $("cands"), input = $("q"), hereBtn = $("here");
@@ -796,8 +816,11 @@ if (!navigator.geolocation) { trackHere("unsupported"); say("この端末では�
 hereBtn.disabled = true; candEl.innerHTML = ""; say("現在地を取得しています…");
 navigator.geolocation.getCurrentPosition(function (p) {
 hereBtn.disabled = false;
-trackHere("granted");
-ready.then(function () { searchFrom({ lat: p.coords.latitude, lng: p.coords.longitude }, "現在地"); });
+ready.then(function () {
+var pt = { lat: p.coords.latitude, lng: p.coords.longitude };
+trackAt("granted", {}, pt);
+searchFrom(pt, "現在地");
+});
 }, function (e) {
 hereBtn.disabled = false;
 trackHere(e.code === 1 ? "denied" : "failed");
@@ -859,9 +882,12 @@ return (nameFirst && stores.length ? Promise.resolve([]) : findStation(q).then(f
 .then(function (hits) { return { hits: hits, stores: stores }; });
 }).then(function (res) {
 var hits = res.hits, stores = res.stores;
-if (!hits.length && !stores.length) { say("「" + q + "」が見つかりませんでした。駅名・店舗名・市区町村名でお試しください。", true); return; }
+var kw = { q: q.slice(0, 40) };
+if (!hits.length && !stores.length) { trackHere("notfound", kw); say("「" + q + "」が見つかりませんでした。駅名・店舗名・市区町村名でお試しください。", true); return; }
 if (!hits.length) {
 // 店舗名で見つかった: 1 店ならその店の周り、複数なら候補を出す
+kw.place = "店舗：" + shortName(stores[0].name);
+trackAt("search", kw, { lat: stores[0].lat, lng: stores[0].lng });
 searchFrom({ lat: stores[0].lat, lng: stores[0].lng }, shortName(stores[0].name));
 if (stores.length > 1) {
 say("店舗名に「" + q + "」を含む店舗が " + stores.length + " 店あります。" + shortName(stores[0].name) + "から近い順に表示しています：");
@@ -872,6 +898,8 @@ return;
 // 候補が複数: 店舗に一番近い候補を先頭に出して選んでもらう
 hits.forEach(function (h) { h.near = Math.min.apply(null, STORES.map(function (s) { return km(h, s); })); });
 hits.sort(function (a, b) { return a.near - b.near; });
+kw.place = hits[0].label;
+trackAt("search", kw, hits[0]);
 searchFrom(hits[0], hits[0].label);
 if (hits.length > 1 || stores.length) {
 say(hits[0].label + "から近い順に表示しています。別の場所の場合は選び直してください：");
